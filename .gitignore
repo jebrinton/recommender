@@ -1,0 +1,54 @@
+# ----- Python -----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# ----- SQLite databases -----
+# The live database files are runtime state, not source code.
+# If you want to commit a seed/schema-only db, remove specific entries below.
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+
+# ----- Server runtime files -----
+server.pid
+server.log
+
+# ----- Temporary / scratch files -----
+*.tmp
+*.bak
+test.db
+test.db-journal
+
+# ----- macOS -----
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ----- FUSE / hidden OS files -----
+.fuse_hidden*
+
+# ----- Inbox data -----
+# The inbox/ folder contains live data that changes at runtime.
+# Commit this if you want the data version-controlled, otherwise leave it ignored.
+# inbox/
+
+# ----- Context snapshot -----
+# context.json is generated at runtime; ignore if auto-generated, remove this
+# line if you want it tracked.
+# context.json
+
+# ----- Secrets / environment -----
+.env
+.env.*
+secrets.json

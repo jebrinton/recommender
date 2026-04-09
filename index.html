@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>📚 Recommender</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+
+    :root {
+      --bg:           #f2efe9;
+      --card:         #ffffff;
+      --border:       #e2ddd6;
+      --text:         #1a1a1a;
+      --muted:        #6b7280;
+      --accent:       #2563eb;
+      --accent-light: #eff6ff;
+      --star:         #f59e0b;
+      --star-empty:   #d1d5db;
+      --wildcard:     #7c3aed;
+      --wildcard-bg:  #f5f3ff;
+      --green:        #15803d;
+      --green-bg:     #f0fdf4;
+      --red:          #dc2626;
+      --shadow:       0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+      --shadow-md:    0 4px 8px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.05);
+      --radius:       12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────────── */
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header-inner {
+      max-width: 1120px; margin: 0 auto; padding: 0 1.5rem;
+      display: flex; align-items: center; gap: 1.5rem; height: 54px;
+    }
+    .sync-btn {
+      margin-left: auto; padding: .3rem .8rem;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: .78rem; font-weight: 600; background: var(--card);
+      color: var(--text); cursor: pointer; transition: all .15s;
+      display: flex; align-items: center; gap: .35rem;
+    }
+    .sync-btn:hover { background: var(--bg); }
+    .sync-btn.spinning { opacity: .6; pointer-events: none; }
+    .sync-badge {
+      background: var(--accent); color: #fff;
+      border-radius: 999px; font-size: .65rem; font-weight: 700;
+      padding: .1rem .4rem; min-width: 18px; text-align: center;
+    }
+    .logo { font-size: .95rem; font-weight: 700; letter-spacing: -.3px; white-space: nowrap; }
+    nav { display: flex; gap: .2rem; }
+    .nav-btn {
+      padding: .35rem .85rem; border: none; background: transparent;
+      border-radius: 8px; font-size: .85rem; font-weight: 500;
+      color: var(--muted); cursor: pointer; transition: all .15s;
+    }
+    .nav-btn:hover { background: var(--bg); color: var(--text); }
+    .nav-btn.active { background: var(--text); color: #fff; }
+
+    /* ── Layout ─────────────────────────────────────────────────────────────── */
+    main { max-width: 1120px; margin: 0 auto; padding: 1.5rem; }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── Article grid ────────────────────────────────────────────────────────── */
+    .article-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ── Card ────────────────────────────────────────────────────────────────── */
+    .article-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.3rem;
+      box-shadow: var(--shadow);
+      transition: box-shadow .2s, opacity .2s;
+      display: flex; flex-direction: column; gap: .7rem;
+    }
+    .article-card:hover { box-shadow: var(--shadow-md); }
+    .article-card.status-read    { border-left: 3px solid #86efac; }
+    .article-card.status-skipped { opacity: .45; }
+
+    /* ── Card meta row ───────────────────────────────────────────────────────── */
+    .card-meta { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; }
+    .badge {
+      display: inline-flex; align-items: center; gap: .2rem;
+      padding: .18rem .55rem; border-radius: 999px;
+      font-size: .68rem; font-weight: 700; letter-spacing: .3px; text-transform: uppercase;
+    }
+    .badge-source   { background: var(--accent-light); color: var(--accent); }
+    .badge-wildcard { background: var(--wildcard-bg);  color: var(--wildcard); }
+    .badge-read     { background: var(--green-bg);     color: var(--green); }
+    .card-date { font-size: .68rem; color: var(--muted); margin-left: auto; }
+
+    /* ── Card title ──────────────────────────────────────────────────────────── */
+    .card-title { font-size: .975rem; font-weight: 600; line-height: 1.4; }
+    .card-title a { color: inherit; text-decoration: none; }
+    .card-title a:hover { color: var(--accent); text-decoration: underline; }
+
+    /* ── Summary ─────────────────────────────────────────────────────────────── */
+    .card-summary { font-size: .855rem; color: #374151; line-height: 1.65; }
+
+    /* ── Takeaways accordion ─────────────────────────────────────────────────── */
+    .takeaways-toggle {
+      background: none; border: none; padding: 0;
+      font-size: .78rem; font-weight: 600; color: var(--muted);
+      cursor: pointer; display: flex; align-items: center; gap: .3rem;
+      transition: color .15s;
+    }
+    .takeaways-toggle:hover { color: var(--accent); }
+    .chevron { transition: transform .2s; display: inline-block; }
+    .takeaways-toggle.open .chevron { transform: rotate(90deg); }
+    .takeaways-body {
+      display: none; font-size: .82rem; color: #374151; line-height: 1.7;
+      padding: .5rem .75rem; border-left: 2px solid var(--border);
+      white-space: pre-line;
+    }
+    .takeaways-body.open { display: block; }
+
+    /* ── Dual 7-point rating widget ──────────────────────────────────────────── */
+    .ratings-block { display: flex; flex-direction: column; gap: .45rem; }
+    .rating-row    { display: flex; align-items: center; gap: .55rem; }
+    .rating-name   {
+      font-size: .68rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .35px;
+      min-width: 52px;
+    }
+    .rating-pills  { display: flex; gap: .22rem; }
+    .rpill {
+      width: 26px; height: 26px; border-radius: 6px;
+      border: 1px solid var(--border); background: var(--bg);
+      font-size: .72rem; font-weight: 600; color: var(--muted);
+      cursor: pointer; transition: all .1s; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      user-select: none;
+    }
+    .rpill:hover   { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .rpill.active  { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .rpill.filled  { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+    .rating-desc   { font-size: .68rem; color: var(--accent); font-weight: 600; min-width: 72px; }
+
+    /* ── Card actions ────────────────────────────────────────────────────────── */
+    .card-actions { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+    .btn {
+      padding: .3rem .7rem; border-radius: 8px;
+      font-size: .74rem; font-weight: 600;
+      border: 1px solid var(--border); background: var(--card);
+      cursor: pointer; transition: all .15s; color: var(--text);
+    }
+    .btn:hover { background: var(--bg); }
+    .btn-primary { background: var(--text); color: #fff; border-color: var(--text); }
+    .btn-primary:hover { background: #333; }
+
+    /* ── Notes ───────────────────────────────────────────────────────────────── */
+    .notes-wrap { position: relative; }
+    .notes-area {
+      width: 100%; min-height: 58px;
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: .55rem .75rem; font-size: .8rem; font-family: inherit;
+      resize: vertical; background: var(--bg); color: var(--text);
+      transition: border-color .15s;
+    }
+    .notes-area:focus { outline: none; border-color: var(--accent); background: var(--card); }
+    .notes-area::placeholder { color: var(--muted); }
+    .save-dot {
+      position: absolute; top: .5rem; right: .6rem;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green); opacity: 0; transition: opacity .3s;
+    }
+    .save-dot.show { opacity: 1; }
+
+    /* ── Section headers ─────────────────────────────────────────────────────── */
+    .section-header {
+      display: flex; align-items: baseline; gap: .7rem;
+      margin-bottom: 1.1rem;
+    }
+    .section-header h2 { font-size: 1.05rem; font-weight: 700; }
+    .section-header .count { font-size: .78rem; color: var(--muted); }
+
+    /* ── Run banner ──────────────────────────────────────────────────────────── */
+    .run-banner {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: .9rem 1.2rem;
+      margin-bottom: 1.2rem;
+      display: flex; align-items: center; gap: .8rem;
+      box-shadow: var(--shadow);
+    }
+    .run-date  { font-weight: 600; font-size: .9rem; }
+    .run-count { font-size: .8rem; color: var(--muted); }
+
+    /* ── Archive filters ─────────────────────────────────────────────────────── */
+    .filters { display: flex; gap: .6rem; margin-bottom: 1.1rem; flex-wrap: wrap; }
+    .filter-input, .filter-select {
+      padding: .45rem .75rem; border: 1px solid var(--border);
+      border-radius: 8px; font-size: .82rem;
+      background: var(--card); color: var(--text);
+    }
+    .filter-input { flex: 1; min-width: 200px; }
+    .filter-input:focus, .filter-select:focus { outline: none; border-color: var(--accent); }
+    .archive-list { display: flex; flex-direction: column; gap: .75rem; }
+
+    /* ── Dashboard ───────────────────────────────────────────────────────────── */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem 1.15rem;
+      box-shadow: var(--shadow);
+    }
+    .stat-label {
+      font-size: .7rem; color: var(--muted); font-weight: 700;
+      letter-spacing: .4px; text-transform: uppercase; margin-bottom: .35rem;
+    }
+    .stat-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .charts-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+      gap: 1rem;
+    }
+    .chart-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.2rem;
+      box-shadow: var(--shadow);
+    }
+    .chart-title {
+      font-size: .75rem; font-weight: 700; margin-bottom: .9rem;
+      color: var(--muted); text-transform: uppercase; letter-spacing: .4px;
+    }
+
+    /* ── Taste Profile / Constitution ────────────────────────────────────────── */
+    .constitution-wrap {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      box-shadow: var(--shadow); max-width: 820px;
+    }
+    .constitution-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .constitution-header h2 { font-size: 1.05rem; font-weight: 700; }
+    .constitution-body {
+      font-size: .875rem; line-height: 1.8; white-space: pre-wrap;
+      color: #374151; min-height: 80px;
+    }
+    .constitution-empty { color: var(--muted); font-style: italic; font-size: .875rem; }
+    .constitution-history {
+      margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;
+    }
+    .history-item {
+      font-size: .78rem; color: var(--muted); padding: .35rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-item strong { color: var(--text); }
+
+    /* ── Empty state ─────────────────────────────────────────────────────────── */
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--muted); }
+    .empty-state .emoji { font-size: 2.5rem; margin-bottom: .75rem; }
+    .empty-state p { font-size: .9rem; line-height: 1.7; }
+
+    /* ── Toast ───────────────────────────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: #111; color: #fff;
+      padding: .55rem 1rem; border-radius: 8px; font-size: .8rem;
+      opacity: 0; transform: translateY(8px);
+      transition: all .2s; pointer-events: none; z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 640px) {
+      .article-grid { grid-template-columns: 1fr; }
+      .charts-grid  { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <span class="logo">📚 Recommender</span>
+    <nav>
+      <button class="nav-btn active" data-view="today">Today</button>
+      <button class="nav-btn" data-view="archive">Archive</button>
+      <button class="nav-btn" data-view="dashboard">Dashboard</button>
+      <button class="nav-btn" data-view="taste">Taste Profile</button>
+    </nav>
+    <button class="sync-btn" id="sync-btn" onclick="doSync()" title="Import queued articles from inbox">
+      <span id="sync-label">↻ Sync</span><span class="sync-badge" id="sync-badge" style="display:none"></span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section id="view-today"     class="view active"></section>
+  <section id="view-archive"   class="view"></section>
+  <section id="view-dashboard" class="view"></section>
+  <section id="view-taste"     class="view"></section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let allArticles = [];
+let charts = {};
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`view-${btn.dataset.view}`).classList.add('active');
+    loadView(btn.dataset.view);
+  });
+});
+
+function loadView(v) {
+  if (v === 'today')     loadToday();
+  if (v === 'archive')   loadArchive();
+  if (v === 'dashboard') loadDashboard();
+  if (v === 'taste')     loadTaste();
+}
+
+// ── API helpers ───────────────────────────────────────────────────────────────
+async function api(path, opts = {}) {
+  const r = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...opts });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+const patchArticle = (id, body) =>
+  api(`/api/articles/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function showToast(msg, ms = 1800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), ms);
+}
+
+function esc(s) {
+  return String(s ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(s) {
+  if (!s) return '';
+  return new Date(s + 'T12:00:00').toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric'
+  });
+}
+
+function topicsArr(raw) {
+  try { return JSON.parse(raw || '[]'); } catch { return []; }
+}
+
+// ── Article Card ──────────────────────────────────────────────────────────────
+function buildCard(a) {
+  const card = document.createElement('div');
+  card.className = `article-card status-${a.status}`;
+  card.dataset.id = a.id;
+
+  const rating = a.rating || 0;
+
+  card.innerHTML = `
+    <div class="card-meta">
+      ${a.source ? `<span class="badge badge-source">${esc(a.source)}</span>` : ''}
+      ${a.category === 'wildcard' ? `<span class="badge badge-wildcard">🃏 Wildcard</span>` : ''}
+      ${a.status === 'read' ? `<span class="badge badge-read">✓ Read</span>` : ''}
+      <span class="card-date">${fmtDate(a.date_recommended)}</span>
+    </div>
+
+    <div class="card-title">
+      <a href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)}</a>
+    </div>
+
+    ${a.summary ? `<div class="card-summary">${esc(a.summary)}</div>` : ''}
+
+    ${a.takeaways ? `
+      <div>
+        <button class="takeaways-toggle" onclick="toggleTakeaways(this)">
+          <span class="chevron">▶</span> Key Takeaways
+        </button>
+        <div class="takeaways-body">${esc(a.takeaways)}</div>
+      </div>` : ''}
+
+    <div class="ratings-block" data-id="${a.id}">
+      ${buildRatingRow('quality_rating',  'Quality', a.quality_rating,  QUALITY_LABELS)}
+      ${buildRatingRow('interest_rating', 'Spark',   a.interest_rating, SPARK_LABELS)}
+    </div>
+
+    <div class="card-actions">
+      <div style="flex:1"></div>
+      ${a.status === 'unread' ? `
+        <button class="btn btn-primary" onclick="markRead(${a.id}, this)">Mark Read</button>
+        <button class="btn" onclick="markSkipped(${a.id}, this)">Skip</button>
+      ` : ''}
+    </div>
+
+    <div class="notes-wrap">
+      <textarea class="notes-area" placeholder="Add notes…"
+                data-id="${a.id}"
+                onblur="saveNotes(this)">${esc(a.notes || '')}</textarea>
+      <span class="save-dot" id="dot-${a.id}"></span>
+    </div>
+  `;
+  return card;
+}
+
+// ── Takeaways ─────────────────────────────────────────────────────────────────
+function toggleTakeaways(btn) {
+  btn.classList.toggle('open');
+  btn.nextElementSibling.classList.toggle('open');
+}
+
+// ── Dual 7-point rating widget ────────────────────────────────────────────────
+const QUALITY_LABELS = ['Weak','Thin','Decent','Solid','Strong','Excellent','Exceptional'];
+const SPARK_LABELS   = ['Nothing','Slight','Mild','Interesting','Engaging','Eye-opening','Transformative'];
+
+function buildRatingRow(field, label, currentVal, labels) {
+  const v = currentVal || 0;
+  const desc = v ? labels[v - 1] : '';
+  const pills = [1,2,3,4,5,6,7].map(n => {
+    const cls = n === v ? 'rpill active' : (n < v ? 'rpill filled' : 'rpill');
+    return `<button class="${cls}" data-n="${n}"
+              onmouseenter="previewRating(this,'${field}')"
+              onmouseleave="resetRating(this,'${field}')"
+              onclick="setRating(this,'${field}')">${n}</button>`;
+  }).join('');
+  return `
+    <div class="rating-row" data-field="${field}" data-val="${v}">
+      <span class="rating-name">${label}</span>
+      <div class="rating-pills">${pills}</div>
+      <span class="rating-desc" id="desc-${field}-BLOCK_ID">${esc(desc)}</span>
+    </div>`;
+}
+
+// After buildCard we patch desc IDs; handle within card context via closest
+function previewRating(el, field) {
+  const row  = el.closest('.rating-row');
+  const n    = +el.dataset.n;
+  const labels = field === 'quality_rating' ? QUALITY_LABELS : SPARK_LABELS;
+  row.querySelectorAll('.rpill').forEach((p, i) => {
+    if (i + 1 < n) { p.classList.add('filled'); p.classList.remove('active'); }
+    else if (i + 1 === n) { p.classList.add('active'); p.classList.remove('filled'); }
+    else { p.classList.remove('active','filled'); }
+  });
+  row.querySelector('.rating-desc').textContent = labels[n - 1] || '';
+}
+
+function resetRating(el, field) {
+  const row = el.closest('.rating-row');
+  const v   = +(row.dataset.val) || 0;
+  const labels = field === 'quality_rating' ? QUALITY_LABELS : SPARK_LABELS;
+  row.querySelectorAll('.rpill').forEach((p, i) => {
+    p.classList.toggle('active', i + 1 === v);
+    p.classList.toggle('filled', i + 1 < v);
+    if (i + 1 === v) p.classList.remove('filled');
+    if (i + 1 < v)  p.classList.remove('active');
+    if (i + 1 > v)  p.classList.remove('active','filled');
+  });
+  row.querySelector('.rating-desc').textContent = v ? labels[v - 1] : '';
+}
+
+async function setRating(el, field) {
+  const row  = el.closest('.rating-row');
+  const block = el.closest('.ratings-block');
+  const id   = +block.dataset.id;
+  const n    = +el.dataset.n;
+  const prev = +(row.dataset.val) || 0;
+  const newV = n === prev ? null : n;  // click same pill → clear
+
+  row.dataset.val = newV || 0;
+  resetRating(el, field);
+  await patchArticle(id, { [field]: newV });
+  flashDot(id);
+}
+
+// ── Notes ─────────────────────────────────────────────────────────────────────
+async function saveNotes(el) {
+  const id = +el.dataset.id;
+  await patchArticle(id, { notes: el.value });
+  flashDot(id);
+}
+function flashDot(id) {
+  const dot = document.getElementById(`dot-${id}`);
+  if (!dot) return;
+  dot.classList.add('show');
+  setTimeout(() => dot.classList.remove('show'), 1500);
+}
+
+// ── Mark read / skipped ───────────────────────────────────────────────────────
+async function markRead(id, btn) {
+  const today = new Date().toISOString().split('T')[0];
+  await patchArticle(id, { status: 'read', date_read: today });
+  const card = btn.closest('.article-card');
+  card.classList.remove('status-unread','status-skipped');
+  card.classList.add('status-read');
+  const actions = card.querySelector('.card-actions');
+  actions.querySelectorAll('.btn').forEach(b => b.remove());
+  const meta = card.querySelector('.card-meta');
+  if (!meta.querySelector('.badge-read')) {
+    meta.insertAdjacentHTML('beforeend', '<span class="badge badge-read">✓ Read</span>');
+  }
+  showToast('Marked as read ✓');
+}
+async function markSkipped(id, btn) {
+  await patchArticle(id, { status: 'skipped' });
+  const card = btn.closest('.article-card');
+  card.classList.remove('status-unread','status-read');
+  card.classList.add('status-skipped');
+  card.querySelector('.card-actions').querySelectorAll('.btn').forEach(b => b.remove());
+  showToast('Skipped');
+}
+
+// ── Today view ────────────────────────────────────────────────────────────────
+async function loadToday() {
+  const el = document.getElementById('view-today');
+  el.innerHTML = '<div class="empty-state"><p>Loading…</p></div>';
+
+  const { run, articles } = await api('/api/articles/latest-run');
+
+  if (!run || !articles.length) {
+    el.innerHTML = `
+      <div class="empty-state">
+        <div class="emoji">📭</div>
+        <p>No recommendations yet.<br>Run the recommender skill to get started.</p>
+      </div>`;
+    return;
+  }
+
+  const regular  = articles.filter(a => a.category !== 'wildcard');
+  const wildcards = articles.filter(a => a.category === 'wildcard');
+
+  el.innerHTML = '';
+
+  // Run banner
+  el.insertAdjacentHTML('beforeend', `
+    <div class="run-banner">
+      <span>📅</span>
+      <span class="run-date">${fmtDate(run.date)}</span>
+      <span class="run-count">${articles.length} articles — ${regular.length} picks, ${wildcards.length} wildcards</span>
+    </div>`);
+
+  if (regular.length) {
+    el.insertAdjacentHTML('beforeend', `
+      <div class="section-header">
+        <h2>Today's Picks</h2>
+        <span class="count">${regular.length}</span>
+      </div>`);
+    const grid = document.createElement('div');
+    grid.className = 'article-grid';
+    regular.forEach(a => grid.appendChild(buildCard(a)));
+    el.appendChild(grid);
+  }
+
+  if (wildcards.length) {
+    el.insertAdjacentHTML('beforeend', `
+      <div class="section-header" style="margin-top:2rem">
+        <h2>🃏 Wildcards</h2>
+        <span class="count">${wildcards.length}</span>
+      </div>`);
+    const grid = document.createElement('div');
+    grid.className = 'article-grid';
+    wildcards.forEach(a => grid.appendChild(buildCard(a)));
+    el.appendChild(grid);
+  }
+}
+
+// ── Archive view ──────────────────────────────────────────────────────────────
+async function loadArchive() {
+  const el = document.getElementById('view-archive');
+
+  if (!document.getElementById('archive-filters')) {
+    el.innerHTML = `
+      <div id="archive-filters" class="filters">
+        <input  type="search" class="filter-input"  id="arch-q"      placeholder="Search titles, summaries, notes…">
+        <select class="filter-select" id="arch-status">
+          <option value="">All statuses</option>
+          <option value="unread">Unread</option>
+          <option value="read">Read</option>
+          <option value="skipped">Skipped</option>
+        </select>
+        <select class="filter-select" id="arch-rating">
+          <option value="">All ratings</option>
+          <option value="5">★★★★★ (5)</option>
+          <option value="4">★★★★+ (4+)</option>
+          <option value="3">★★★+ (3+)</option>
+          <option value="unrated">Unrated</option>
+        </select>
+        <select class="filter-select" id="arch-cat">
+          <option value="">All types</option>
+          <option value="regular">Regular</option>
+          <option value="wildcard">Wildcard</option>
+        </select>
+      </div>
+      <div id="archive-list" class="archive-list"></div>
+    `;
+    ['arch-q','arch-status','arch-rating','arch-cat'].forEach(id => {
+      document.getElementById(id).addEventListener('input', renderArchive);
+    });
+  }
+
+  allArticles = await api('/api/articles');
+  renderArchive();
+}
+
+function renderArchive() {
+  const q      = (document.getElementById('arch-q')?.value     || '').toLowerCase();
+  const status = document.getElementById('arch-status')?.value || '';
+  const ratingF = document.getElementById('arch-rating')?.value || '';
+  const cat    = document.getElementById('arch-cat')?.value    || '';
+
+  let list = allArticles;
+  if (q)      list = list.filter(a =>
+    [a.title, a.summary, a.notes, a.source].some(f => (f||'').toLowerCase().includes(q)));
+  if (status) list = list.filter(a => a.status === status);
+  if (cat)    list = list.filter(a => a.category === cat);
+  if (ratingF === 'unrated') list = list.filter(a => !a.rating);
+  else if (ratingF)          list = list.filter(a => a.rating >= +ratingF);
+
+  const el = document.getElementById('archive-list');
+  if (!el) return;
+
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><p>No articles match your filters.</p></div>';
+    return;
+  }
+  el.innerHTML = '';
+  list.forEach(a => el.appendChild(buildCard(a)));
+}
+
+// ── Dashboard view ────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const el = document.getElementById('view-dashboard');
+  el.innerHTML = '<div class="empty-state"><p>Loading…</p></div>';
+
+  const s = await api('/api/stats');
+
+  el.innerHTML = `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">${s.total}</div></div>
+      <div class="stat-card"><div class="stat-label">Read</div><div class="stat-value">${s.read}</div></div>
+      <div class="stat-card"><div class="stat-label">Rated</div><div class="stat-value">${s.rated}</div></div>
+      <div class="stat-card"><div class="stat-label">With Notes</div><div class="stat-value">${s.noted}</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Quality</div>
+        <div class="stat-value">${s.avg_quality ? s.avg_quality.toFixed(1) : '—'}</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Spark</div>
+        <div class="stat-value">${s.avg_interest ? s.avg_interest.toFixed(1) : '—'}</div></div>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card"><div class="chart-title">Reading Status</div><canvas id="ch-status"></canvas></div>
+      <div class="chart-card"><div class="chart-title">Quality Distribution (1–7)</div><canvas id="ch-quality"></canvas></div>
+      <div class="chart-card"><div class="chart-title">Spark Distribution (1–7)</div><canvas id="ch-spark"></canvas></div>
+      <div class="chart-card"><div class="chart-title">Articles by Source</div><canvas id="ch-sources"></canvas></div>
+      <div class="chart-card"><div class="chart-title">Top Topics</div><canvas id="ch-topics"></canvas></div>
+    </div>
+  `;
+
+  Object.values(charts).forEach(c => c.destroy());
+  charts = {};
+
+  // Status doughnut
+  const statusMap = Object.fromEntries(s.by_status.map(r => [r.status, r.cnt]));
+  charts.status = new Chart(document.getElementById('ch-status'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Unread', 'Read', 'Skipped'],
+      datasets: [{ data: [statusMap.unread||0, statusMap.read||0, statusMap.skipped||0],
+        backgroundColor: ['#e5e7eb','#86efac','#d1d5db'], borderWidth: 0 }]
+    },
+    options: { plugins: { legend: { position: 'right' } }, cutout: '62%' }
+  });
+
+  // Quality distribution bar (1-7)
+  const qData = [0,0,0,0,0,0,0];
+  (s.quality_dist||[]).forEach(r => { if (r.rating >= 1 && r.rating <= 7) qData[r.rating-1] = r.cnt; });
+  charts.quality = new Chart(document.getElementById('ch-quality'), {
+    type: 'bar',
+    data: {
+      labels: ['1 Weak','2 Thin','3 Decent','4 Solid','5 Strong','6 Excellent','7 Exceptional'],
+      datasets: [{ data: qData,
+        backgroundColor: ['#fca5a5','#fed7aa','#fde68a','#d9f99d','#a7f3d0','#6ee7b7','#34d399'],
+        borderRadius: 6, borderSkipped: false }]
+    },
+    options: { plugins: { legend: { display: false } },
+               scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                         x: { ticks: { font: { size: 10 } } } } }
+  });
+
+  // Spark distribution bar (1-7)
+  const sData = [0,0,0,0,0,0,0];
+  (s.interest_dist||[]).forEach(r => { if (r.rating >= 1 && r.rating <= 7) sData[r.rating-1] = r.cnt; });
+  charts.spark = new Chart(document.getElementById('ch-spark'), {
+    type: 'bar',
+    data: {
+      labels: ['1 Nothing','2 Slight','3 Mild','4 Interesting','5 Engaging','6 Eye-opening','7 Transform.'],
+      datasets: [{ data: sData,
+        backgroundColor: ['#fca5a5','#fed7aa','#fde68a','#d9f99d','#a7f3d0','#6ee7b7','#34d399'],
+        borderRadius: 6, borderSkipped: false }]
+    },
+    options: { plugins: { legend: { display: false } },
+               scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                         x: { ticks: { font: { size: 10 } } } } }
+  });
+
+  // Sources horizontal bar
+  if (s.by_source.length) {
+    charts.sources = new Chart(document.getElementById('ch-sources'), {
+      type: 'bar',
+      data: {
+        labels: s.by_source.map(r => r.source),
+        datasets: [{ data: s.by_source.map(r => r.cnt),
+          backgroundColor: '#93c5fd', borderRadius: 6, borderSkipped: false }]
+      },
+      options: { indexAxis: 'y',
+                 plugins: { legend: { display: false } },
+                 scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+  }
+
+  // Topics horizontal bar
+  if (s.top_topics.length) {
+    charts.topics = new Chart(document.getElementById('ch-topics'), {
+      type: 'bar',
+      data: {
+        labels: s.top_topics.map(r => r.topic),
+        datasets: [{ data: s.top_topics.map(r => r.count),
+          backgroundColor: '#c4b5fd', borderRadius: 6, borderSkipped: false }]
+      },
+      options: { indexAxis: 'y',
+                 plugins: { legend: { display: false } },
+                 scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+  }
+}
+
+// ── Taste Profile view ────────────────────────────────────────────────────────
+async function loadTaste() {
+  const el = document.getElementById('view-taste');
+  el.innerHTML = '<div class="empty-state"><p>Loading…</p></div>';
+
+  const { content, history } = await api('/api/constitution');
+
+  el.innerHTML = `
+    <div class="constitution-wrap">
+      <div class="constitution-header">
+        <h2>🧭 Taste Constitution</h2>
+      </div>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem;line-height:1.6">
+        This is a living document that Claude updates over time based on your ratings and notes.
+        It captures not just what you like, but <em>why</em> — writing style, depth, intellectual approach.
+        Claude uses it to calibrate every future search.
+      </p>
+      <div class="constitution-body" id="constitution-text">
+        ${content
+          ? esc(content)
+          : '<span class="constitution-empty">No taste profile yet. Rate and annotate some articles — Claude will synthesize a profile on the next run.</span>'}
+      </div>
+
+      ${history.length ? `
+        <div class="constitution-history">
+          <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.5rem">
+            Version History
+          </div>
+          ${history.map(h => {
+            const raw = h.created_at ? h.created_at.replace(' ', 'T') : '';
+            const d   = new Date(raw);
+            const dateStr = isNaN(d.getTime())
+              ? 'Unknown date'
+              : d.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+            return `
+            <div class="history-item">
+              <strong>${dateStr}</strong>
+              ${h.summary ? ` — ${esc(h.summary)}` : ''}
+            </div>`;
+          }).join('')}
+        </div>` : ''}
+    </div>
+  `;
+}
+
+// ── Sync ──────────────────────────────────────────────────────────────────────
+async function doSync() {
+  const btn   = document.getElementById('sync-btn');
+  const label = document.getElementById('sync-label');
+  btn.classList.add('spinning');
+  label.textContent = '↻ Syncing…';
+  try {
+    const r = await api('/api/sync', { method: 'POST' });
+    if (r.added > 0) {
+      showToast(`Imported ${r.added} new articles ✓`, 3000);
+      loadView(document.querySelector('.nav-btn.active').dataset.view);
+    } else {
+      showToast('Nothing new to import', 1500);
+    }
+  } catch (e) {
+    showToast('Sync failed — is the server running?', 3000);
+  } finally {
+    btn.classList.remove('spinning');
+    label.textContent = '↻ Sync';
+    updateInboxBadge();
+  }
+}
+
+async function updateInboxBadge() {
+  try {
+    const { pending } = await api('/api/inbox');
+    const badge = document.getElementById('sync-badge');
+    if (pending > 0) {
+      badge.textContent = pending;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch { /* server might not be up yet */ }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadToday();
+updateInboxBadge();
+setInterval(updateInboxBadge, 30000);  // check every 30s
+</script>
+</body>
+</html>

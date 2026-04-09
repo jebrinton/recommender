@@ -1,0 +1,122 @@
+{
+  "date": "2026-04-08",
+  "articles": [
+    {
+      "title": "When Existence is Inefficient",
+      "url": "https://inference-review.com/article/when-existence-is-inefficient",
+      "source": "Inference Magazine",
+      "summary": "Allyn Jackson traces Christos Papadimitriou's invention of the PPAD complexity class\u2014a category capturing problems provably guaranteed to have solutions but potentially requiring exponential time to find. The central result: computing Nash equilibria is PPAD-complete, placing it in the same hardness tier as finding Brouwer fixed points. This exposes a deep asymmetry between existence proofs and efficient computation that standard P vs. NP framing obscures.",
+      "takeaways": [
+        "Existence theorems (Nash, Brouwer) do not imply tractable algorithms\u2014PPAD formalizes exactly this gap between guaranteed existence and constructive finding",
+        "Nash equilibrium computation sits in a complexity niche distinct from NP: solutions always exist, making it a different flavor of hardness",
+        "The connection between combinatorial parity arguments and fixed-point theorems is mathematically deep and non-obvious\u2014the same structure underlies both"
+      ],
+      "topics": [
+        "complexity theory",
+        "PPAD",
+        "Nash equilibria",
+        "formal computer science",
+        "mathematics"
+      ],
+      "category": "regular"
+    },
+    {
+      "title": "The Chinese Civil Examinations",
+      "url": "https://inference-review.com/article/the-chinese-civil-examinations",
+      "source": "Inference Magazine",
+      "summary": "Hilde De Weerdt offers a revisionist account of China's civil service examinations from the Song dynasty through 1900, arguing that modernist dismissals\u2014which branded the system as rote memorization and intellectual ossification\u2014were 20th-century nationalist projections rather than accurate assessments. Using enrollment statistics and close reading of actual examination essays, she shows the exams rewarded originality, facilitated genuine social mobility, and served as platforms for intellectual innovation including Neo-Confucianism.",
+      "takeaways": [
+        "The eight-legged essay format explicitly valued originality and creative judgment\u2014contemporary critics said so; the rote-memorization narrative is a modern retroactive dismissal",
+        "Exponential candidate growth across dynasties reflects real social mobility pressure and institutional dynamism, not stagnation",
+        "Pre-modern intellectual institutions are routinely misread when filtered through 20th-century modernization theory\u2014the same mistake recurs across cultures"
+      ],
+      "topics": [
+        "China",
+        "history",
+        "meritocracy",
+        "institutional analysis",
+        "education",
+        "Song dynasty"
+      ],
+      "category": "regular"
+    },
+    {
+      "title": "New Strides Made on Deceptively Simple 'Lonely Runner' Problem",
+      "url": "https://www.quantamagazine.org/new-strides-made-on-deceptively-simple-lonely-runner-problem-20260306/",
+      "source": "Quanta Magazine",
+      "summary": "After a 20-year stall, mathematicians have proved the lonely runner conjecture for 8, 9, and 10 runners\u2014the conjecture holds that any runner on a circular track will eventually become isolated from all others. The breakthroughs came from combining Terence Tao's 2015 reduction (from infinite to finite verification) with computer-assisted number theory and, in the 9- and 10-runner cases, from an Oxford undergraduate who found more efficient computational techniques. The core difficulty scales exponentially with each additional runner.",
+      "takeaways": [
+        "Tao's 2015 work made the problem computationally tractable by reducing the infinite verification space to finite cases\u2014enabling the current wave of proofs",
+        "The conjecture connects Diophantine approximation to combinatorics in non-obvious ways; its simplicity of statement conceals extreme technical depth",
+        "An undergraduate's efficiency improvement\u2014extending proofs from 8 to 10 runners\u2014illustrates how algorithmic cleverness can unlock previously intractable mathematical questions"
+      ],
+      "topics": [
+        "number theory",
+        "combinatorics",
+        "Diophantine approximation",
+        "open problems",
+        "mathematics"
+      ],
+      "category": "regular"
+    },
+    {
+      "title": "Salarymen, Specialists, and Small Businesses",
+      "url": "https://www.noahpinion.blog/p/salarymen-specialists-and-small-businesses",
+      "source": "Noahpinion",
+      "summary": "Noah Smith argues that two years of post-ChatGPT labor market data show AI replacing tasks within jobs rather than eliminating jobs outright\u2014European firm studies find near-null wage effects in AI-exposed occupations. He introduces a 'task bundling' framework: jobs where multiple functions must be performed by the same person ('strongly bundled') resist automation longer than weakly bundled ones. He extends this to predict that salarymen (generalist corporate employees), specialists, and small-business owners will each find distinct modes of coexistence with AI.",
+      "takeaways": [
+        "Humlum-Vestergaard (2026) firm-level data shows precise null effects on earnings two years post-ChatGPT\u2014the feared displacement hasn't materialized in wages yet",
+        "'Task bundling' determines automation resilience: radiologists are protected not by technical difficulty alone but by the integration of diagnosis, communication, and judgment in a single professional role",
+        "Japan's historical salaryman model\u2014broad company loyalty, generalist skills, organizational embeddedness\u2014may be better-adapted to AI-era employment than specialized, task-legible occupations"
+      ],
+      "topics": [
+        "AI",
+        "labor economics",
+        "future of work",
+        "automation",
+        "Japan",
+        "task bundling"
+      ],
+      "category": "regular"
+    },
+    {
+      "title": "Against Almost Every Theory of Impact of Interpretability",
+      "url": "https://www.lesswrong.com/posts/LNA8mubrByG7SFacm/against-almost-every-theory-of-impact-of-interpretability-1",
+      "source": "LessWrong",
+      "summary": "Charbel-Rapha\u00ebl mounts a systematic critique of the justifications given for AI interpretability research, arguing that the field's leading theories of impact\u2014that interpretability enables behavioral prediction of future systems, meaningful auditing, and reliable oversight\u2014each fail under scrutiny. The piece is a rare internal critique from within the AI safety community, questioning whether circuit-level understanding of current systems scales to anything tractable in more capable models.",
+      "takeaways": [
+        "Interpretability's two strongest value propositions\u2014predicting future AI behavior and auditing AI systems for safety\u2014both have structural weaknesses that the field has not adequately confronted",
+        "Circuit-level mechanistic understanding may not generalize: what we learn about GPT-4's internal circuits may not transfer to systems trained differently or at higher capability",
+        "This is a significant internal challenge: if the field cannot articulate a robust theory of impact, resources flowing into it may be misallocated relative to other AI safety approaches"
+      ],
+      "topics": [
+        "AI safety",
+        "interpretability",
+        "mechanistic interpretability",
+        "research methodology",
+        "AI alignment"
+      ],
+      "category": "regular"
+    },
+    {
+      "title": "Planetary Intelligence",
+      "url": "https://inference-review.com/article/planetary-intelligence",
+      "source": "Inference Magazine",
+      "summary": "Charles Lineweaver reviews a high-profile proposal that intelligence should be understood as a planetary-scale phenomenon, and that humanity might mature into stewards of a 'sustainable technosphere.' Lineweaver is skeptical: evolutionary biology predicts senescence after maturity (not sustained stewardship), extending 'intelligence' to planetary scales collapses complex diversity into a misleadingly single dimension, and the Fermi silence\u2014no detected alien technospheres\u2014is evidence that mature technological civilizations are not durable evolutionary outcomes.",
+      "takeaways": [
+        "The biological analogy cuts against the proposal's optimism: maturity in organisms leads to senescence and death, not sustainable stewardship\u2014the framework can't escape this",
+        "Measuring 'planetary intelligence' on a single scale repeats the same methodological error as historical IQ racism\u2014flattening irreducible diversity into a quantity that reflects the measurer's values",
+        "The cosmic silence is underweighted evidence: if mature technospheres were common evolutionary outcomes, we should expect to detect them; we don't"
+      ],
+      "topics": [
+        "astrobiology",
+        "AI",
+        "planetary science",
+        "evolution",
+        "Fermi paradox",
+        "technosphere"
+      ],
+      "category": "wildcard"
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "date": "2026-04-07",
+  "articles": [
+    {
+      "title": "'The Era of Experience' Has an Unsolved Technical Alignment Problem",
+      "url": "https://www.alignmentforum.org/posts/TCGgiJAinGgcMEByt/the-era-of-experience-has-an-unsolved-technical-alignment",
+      "source": "Alignment Forum",
+      "summary": "Steven Byrnes pushes back on Silver & Sutton's optimistic \"Era of Experience\" proposal \u2014 that future AI agents can reach superhuman capability by learning predominantly from experience via RL. Byrnes argues the technical alignment problem for powerful RL agents is far more unsolved than the paper implies: nobody has specified a reward function whose optimization by a superintelligent agent wouldn't be catastrophic, and the field's confident assertions obscure how wide this gap actually is.",
+      "takeaways": [
+        "RL-based AGI presents categorically different alignment challenges than LLMs \u2014 the machinery for goal-directed optimization makes misalignment more dangerous",
+        "There is no known reward function that, if optimized to superhuman levels, would reliably lead to good outcomes rather than specification gaming",
+        "Optimism about technical alignment solutions tends to paper over the actual mechanisms \u2014 understanding precisely why RL agents are hard to align is more valuable than reassuring narratives"
+      ],
+      "topics": [
+        "AI",
+        "alignment",
+        "reinforcement learning",
+        "technical"
+      ],
+      "category": "regular"
+    },
+    {
+      "title": "The Chinese Civil Examinations",
+      "url": "https://inference-review.com/article/the-chinese-civil-examinations",
+      "source": "Inference Magazine",
+      "summary": "Hilde De Weerdt rehabilitates the Chinese civil examination system, pushing back against the early 20th-century dismissal of it as ossified and anti-creative. She shows how the system was a sophisticated mechanism for negotiating educational standards and social mobility across dynasties \u2014 and that the eight-legged essay, far from being a rote exercise, was evaluated by examiners for originality, creativity, and intentional departures from rigid parallelism.",
+      "takeaways": [
+        "The modernist critique of Chinese civil exams was largely a political move by reformers, not a sober historical assessment \u2014 the exams actually rewarded creativity within structure",
+        "Imperial governments deliberately standardized exam genres without prescribing curricula, creating space for literati networks to negotiate intellectual standards across centuries",
+        "Social mobility through examination was real (37\u201350% of graduates came from non-bureaucratic families) but coexisted with persistent social reproduction \u2014 family networks shaped outcomes even in a formally meritocratic system"
+      ],
+      "topics": [
+        "history",
+        "China",
+        "institutions",
+        "meritocracy",
+        "political science"
+      ],
+      "category": "regular"
+    },
+    {
+      "title": "The First Non-Opioid Painkiller",
+      "url": "https://worksinprogress.co/issue/the-first-non-opioid-painkiller/",
+      "source": "Works in Progress",
+      "summary": "An account of the 27-year, multi-billion-dollar development of suzetrigine (Journavx), the first non-opioid analgesic approved for acute pain in decades. Rather than suppressing the brain's pain perception like opioids, suzetrigine selectively blocks NaV1.8 \u2014 a specific sodium channel in peripheral pain neurons \u2014 preventing the pain signal from being sent in the first place. The piece covers the mechanism, the failed molecules along the way, and the clinical trial design challenges.",
+      "takeaways": [
+        "Suzetrigine works bottom-up: it blocks pain signal transmission in peripheral neurons via NaV1.8 selectivity, rather than top-down opioid receptor suppression in the brain \u2014 this is why it lacks addiction and withdrawal profiles",
+        "The development illustrates how ion channel selectivity was the key bottleneck \u2014 building a molecule that targets NaV1.8 without touching NaV1.4 (which causes heart arrhythmias) took decades of iterative chemistry",
+        "Clinical trials for painkillers rely heavily on surgical models (bunionectomy, abdominoplasty) performed mostly on women, creating systematic demographic gaps in the evidence base for chronic pain treatment"
+      ],
+      "topics": [
+        "pharmacology",
+        "drug development",
+        "neuroscience",
+        "opioid crisis",
+        "medicine"
+      ],
+      "category": "regular"
+    },
+    {
+      "title": "Interpreting Polygenic Prediction of Cognitive Ability",
+      "url": "https://marginalrevolution.com/marginalrevolution/2026/04/interpreting-polygenic-prediction-of-cognitive-ability.html",
+      "source": "Marginal Revolution",
+      "summary": "Tyler Cowen flags a new paper by Tobias Wolfram et al. that makes a technically precise case for direct genetic effects on cognitive ability. Key result: within-family attenuation is ~0.88, meaning about 88% of the polygenic score's predictive power survives sibling controls and reflects direct genetic rather than environmental confounds. When corrected for measurement error in brief IQ tests, within-family associations with latent general ability reach ~0.45.",
+      "takeaways": [
+        "The within-family design (comparing siblings) is the gold standard for ruling out environmental confounds \u2014 an attenuation of 0.88 is unusually high and suggests the predictive signal is mostly genetic, not just correlated with family background",
+        "Cross-ancestry portability at ~66% retention in African Americans matches theoretical expectations under a polygenic model \u2014 this is quantitatively meaningful for the debate about whether PGS findings generalize across populations",
+        "Polygenic scores for cognitive ability predict not just IQ but educational attainment, occupational status, and reduced cardiometabolic disease risk \u2014 the latent variable is doing real work across multiple life domains"
+      ],
+      "topics": [
+        "genetics",
+        "cognitive science",
+        "quantitative methods",
+        "behavioral genetics",
+        "demographics"
+      ],
+      "category": "regular"
+    },
+    {
+      "title": "The Scent of Flavor",
+      "url": "https://inference-review.com/article/the-scent-of-flavor",
+      "source": "Inference Magazine",
+      "summary": "Linda Bartoshuk argues that Aristotle's five-sense model led scientists to miss a fundamental distinction: \"flavor\" is specifically retronasal olfaction \u2014 volatile compounds traveling from the mouth into the nasal cavity \u2014 not merely a blend of taste and smell. She traces how taste functions as a neural gating mechanism that modulates whether olfactory signals are perceived as flavor or ambient smell, and how this understanding opens pathways for reducing dietary sugar and sodium while maintaining palatability.",
+      "takeaways": [
+        "Retronasal olfaction (smell from inside the mouth) and orthonasal olfaction (smell from outside) are processed differently by the brain \u2014 what we call \"flavor\" is a distinct sensory modality that classical sense-taxonomy obscured for two centuries",
+        "Taste gates flavor perception: blocking taste on one side of the tongue reduces retronasal olfactory sensation by 25%, and bilateral blocking causes 50% reduction \u2014 the two systems are neurologically coupled, not additive",
+        "Specific volatile compounds in tomatoes enhance perceived sweetness independently of sugar content \u2014 a finding with direct applications for formulating lower-sugar, lower-sodium foods without taste degradation"
+      ],
+      "topics": [
+        "sensory science",
+        "neuroscience",
+        "flavor",
+        "perception",
+        "biology"
+      ],
+      "category": "regular"
+    },
+    {
+      "title": "The Enemy of the Good",
+      "url": "https://thepointmag.com/examined-life/the-enemy-of-the-good/",
+      "source": "The Point",
+      "summary": "Nicholas Clairmont makes a philosophical case against optimization as a general life posture. While acknowledging that optimization has genuine value in bounded domains (logistics, agriculture, engineering), he argues that applying it to intimate life \u2014 relationships, moral commitments, personal experiences \u2014 destroys precisely what makes those things worth having. Using Effective Altruism's reductio (prioritizing shrimp welfare over humans; advocating nuclear war to prevent AI) as his centerpiece, he argues consistent optimization logic reaches inhumane conclusions.",
+      "takeaways": [
+        "The problem with optimization as a moral posture is not any individual premise but the mindset \u2014 the analytical detachment required to maximize corrodes the very attachment that makes intimate life meaningful",
+        "Orwell's observation that \"the essence of being human is that one does not seek perfection\" is not anti-rational sentimentality but a recognition that vulnerability, loyalty, and imperfection are constitutive of valuable relationships \u2014 not bugs to be fixed",
+        "EA-style reasoning shows that consistent optimization logic, applied without remainder, systematically produces conclusions that override common moral intuitions \u2014 Clairmont reads this not as a win for careful reasoning but as a symptom of optimization's domain blindness"
+      ],
+      "topics": [
+        "philosophy",
+        "ethics",
+        "effective altruism",
+        "optimization",
+        "critique"
+      ],
+      "category": "wildcard"
+    },
+    {
+      "title": "Where Does Politics Take Place?",
+      "url": "https://thepointmag.com/politics/where-does-politics-take-place/",
+      "source": "The Point",
+      "summary": "Ege Yumusak argues, drawing on Ranci\u00e8re and Arendt, that authentic politics doesn't happen in formal deliberative spaces but in everyday moments where people contest each other's worldviews face-to-face. Liberalism's confinement of politics to rational public discourse while celebrating unlimited consumer choice creates citizens who are free but \"uninformed, undisciplined, and mentally and emotionally stunted.\" Real politics happens when people make disagreement visible and transform what counts as a public concern.",
+      "takeaways": [
+        "Ranci\u00e8re's distinction between \"politics\" (making the invisible visible, creating new possibilities) and \"police\" (the order that negates opposing worldviews as illegitimate) reframes what counts as genuine political engagement",
+        "Liberalism's model of deliberative rationality for public discourse, combined with unlimited private choice, paradoxically produces political disengagement \u2014 the disciplines required for public reasoning are never exercised in everyday life",
+        "Arendt's insight that political judgment emerges through ordinary citizens contesting common objects suggests that the site of politics is not institutions but the texture of social life \u2014 an uncomfortable challenge to both technocratic and proceduralist views"
+      ],
+      "topics": [
+        "political philosophy",
+        "Arendt",
+        "Ranci\u00e8re",
+        "liberalism",
+        "democracy"
+      ],
+      "category": "wildcard"
+    }
+  ]
+}
