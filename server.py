@@ -12,7 +12,8 @@ Architecture
 """
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn, json, shutil
 from pathlib import Path
 from datetime import date
@@ -27,6 +28,12 @@ INBOX_DIR         = BASE / "inbox"
 IMPORTED_DIR      = BASE / "inbox" / "imported"
 
 app = FastAPI(title="Reading Recommender", docs_url=None, redoc_url=None)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # ── Startup ───────────────────────────────────────────────────────────────────
@@ -225,6 +232,7 @@ def inbox_status():
 def list_articles(
     status: str = None, source: str = None, q: str = None,
     run_id: int = None, min_rating: int = None, unrated_only: bool = False,
+    needs_enrichment: bool = False,
 ):
     conds, params = [], []
     if status:       conds.append("status = ?");       params.append(status)
@@ -232,6 +240,8 @@ def list_articles(
     if run_id:       conds.append("run_id = ?");       params.append(run_id)
     if min_rating:   conds.append("rating >= ?");      params.append(min_rating)
     if unrated_only: conds.append("rating IS NULL")
+    if needs_enrichment:
+        conds.append("(summary IS NULL OR summary = '' OR topics IS NULL OR topics = '[]' OR takeaways IS NULL OR takeaways = '')")
     if q:
         conds.append("(title LIKE ? OR summary LIKE ? OR notes LIKE ?)")
         params += [f"%{q}%"] * 3
@@ -256,10 +266,68 @@ def latest_run():
     return {"run": dict(run), "articles": [dict(a) for a in arts]}
 
 
+@app.post("/api/articles")
+async def create_article(request: Request):
+    """Create a new article (e.g. from the browser extension). No run_id required."""
+    body = await request.json()
+    url = body.get("url", "").strip()
+    title = body.get("title", "").strip()
+    if not url:
+        raise HTTPException(400, "url is required")
+    if not title:
+        raise HTTPException(400, "title is required")
+
+    # summary, topics, and takeaways are left NULL — Claude enriches these
+    # during the scheduled recommender task.
+
+    with get_conn() as conn:
+        # Check for duplicate URL
+        existing = conn.execute("SELECT * FROM articles WHERE url = ?", [url]).fetchone()
+        if existing:
+            return JSONResponse(dict(existing), status_code=409)
+
+        conn.execute(
+            """INSERT INTO articles
+               (title, url, source, summary, takeaways, topics, category,
+                status, quality_rating, interest_rating, notes, date_recommended)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+            [title, url, body.get("source", ""), None,
+             None, None, body.get("category", "regular"),
+             body.get("status", "unread"),
+             body.get("quality_rating"), body.get("interest_rating"),
+             body.get("notes"), body.get("date_recommended", str(date.today()))],
+        )
+        row = conn.execute("SELECT * FROM articles WHERE url = ?", [url]).fetchone()
+
+    _export_context()
+    return JSONResponse(dict(row), status_code=201)
+
+
+@app.get("/api/articles/by-url")
+def article_by_url(url: str):
+    """Look up a single article by its URL."""
+    with get_conn() as conn:
+        row = conn.execute("SELECT * FROM articles WHERE url = ?", [url]).fetchone()
+    if not row:
+        raise HTTPException(404, "Article not found")
+    return dict(row)
+
+
+@app.get("/api/sources")
+def list_sources():
+    """Return distinct source names for autocomplete."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT DISTINCT source FROM articles WHERE source IS NOT NULL AND source != '' ORDER BY source"
+        ).fetchall()
+    return [r[0] for r in rows]
+
+
 @app.patch("/api/articles/{aid}")
 async def update_article(aid: int, request: Request):
     body = await request.json()
-    allowed = {"rating", "quality_rating", "interest_rating", "notes", "status", "date_read"}
+    allowed = {"rating", "quality_rating", "interest_rating", "notes", "status", "date_read",
+                "title", "source", "summary", "takeaways", "topics"}
     updates = {k: v for k, v in body.items() if k in allowed}
     if not updates:
         raise HTTPException(400, "No valid fields")
@@ -379,4 +447,4 @@ async def save_constitution(request: Request):
 
 if __name__ == "__main__":
     print(f"\n  📚 Recommender → http://localhost:{PORT}\n")
-    uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning")
+    uvicorn.run(app, host="0.0.0.0", port=PORT, log_level="warning")

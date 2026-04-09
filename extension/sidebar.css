@@ -1,0 +1,400 @@
+/* sidebar.css — All styles scoped inside shadow DOM */
+
+:host {
+  --bg:           #f2efe9;
+  --card:         #ffffff;
+  --border:       #e2ddd6;
+  --text:         #1a1a1a;
+  --muted:        #6b7280;
+  --accent:       #2563eb;
+  --accent-light: #eff6ff;
+  --green:        #15803d;
+  --green-bg:     #f0fdf4;
+  --red:          #dc2626;
+  --shadow:       0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:    0 4px 8px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.05);
+  --radius:       12px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar-container {
+  width: 100%;
+  height: 100%;
+}
+
+.sidebar {
+  width: 420px;
+  height: 100vh;
+  background: var(--card);
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 16px rgba(0,0,0,.1);
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+  position: relative;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────────── */
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+  transition: background .3s;
+}
+
+.status-dot.online {
+  background: var(--green);
+}
+
+.sidebar-title {
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: -.2px;
+  flex: 1;
+}
+
+.close-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+}
+
+.close-btn:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+/* ── Body ────────────────────────────────────────────────────────────────────── */
+
+.sidebar-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+}
+
+/* ── Field groups ────────────────────────────────────────────────────────────── */
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.field-label {
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .35px;
+}
+
+.field-input {
+  width: 100%;
+  padding: .45rem .65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .82rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  transition: border-color .15s, background .15s;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--card);
+}
+
+.field-url {
+  font-size: .75rem;
+  color: var(--accent);
+  text-decoration: none;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.field-url:hover {
+  text-decoration: underline;
+}
+
+.field-textarea {
+  width: 100%;
+  padding: .55rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .82rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color .15s, background .15s;
+}
+
+.field-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--card);
+}
+
+.field-textarea::placeholder,
+.field-input::placeholder {
+  color: var(--muted);
+}
+
+/* ── Source autocomplete ─────────────────────────────────────────────────────── */
+
+.source-group {
+  position: relative;
+}
+
+.ac-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  margin-top: 2px;
+}
+
+.ac-option {
+  padding: .4rem .65rem;
+  font-size: .8rem;
+  cursor: pointer;
+  transition: background .1s;
+}
+
+.ac-option:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+/* ── Rating pills (matches index.html design) ───────────────────────────────── */
+
+.ratings-block {
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+}
+
+.rating-row {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+}
+
+.rating-name {
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .35px;
+  min-width: 52px;
+}
+
+.rating-pills {
+  display: flex;
+  gap: .22rem;
+}
+
+.rpill {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .1s;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.rpill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+.rpill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.rpill.filled {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.rating-desc {
+  font-size: .68rem;
+  color: var(--accent);
+  font-weight: 600;
+  min-width: 72px;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────────── */
+
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
+.footer-right {
+  display: flex;
+  gap: .5rem;
+}
+
+.btn {
+  padding: .4rem .85rem;
+  border-radius: 8px;
+  font-size: .78rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  transition: all .15s;
+  color: var(--text);
+}
+
+.btn:hover {
+  background: var(--bg);
+}
+
+.btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.btn-skip {
+  color: var(--muted);
+}
+
+.btn-skip:hover {
+  color: var(--text);
+}
+
+.btn-save {
+  background: var(--card);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-save:hover {
+  background: var(--accent-light);
+}
+
+.btn-mark-read {
+  background: var(--text);
+  color: #fff;
+  border-color: var(--text);
+}
+
+.btn-mark-read:hover {
+  background: #333;
+}
+
+/* ── Toast ───────────────────────────────────────────────────────────────────── */
+
+.toast {
+  position: absolute;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--text);
+  color: #fff;
+  padding: .45rem 1rem;
+  border-radius: 8px;
+  font-size: .78rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity .2s, transform .2s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Outbox badge ────────────────────────────────────────────────────────────── */
+
+.outbox-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  font-size: .62rem;
+  font-weight: 700;
+  background: #fef3c7;
+  color: #92400e;
+  letter-spacing: .2px;
+}
+
+/* ── Existing article indicator ──────────────────────────────────────────────── */
+
+.existing-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  font-size: .65rem;
+  font-weight: 700;
+  background: var(--green-bg);
+  color: var(--green);
+  letter-spacing: .2px;
+}

@@ -1,0 +1,65 @@
+<!-- sidebar.html — Loaded into shadow DOM by content.js -->
+
+<div class="sidebar">
+  <!-- Header -->
+  <div class="sidebar-header">
+    <div class="status-dot" id="status-dot" title="Server offline"></div>
+    <span class="sidebar-title">Reading Recommender</span>
+    <span class="outbox-badge" id="outbox-badge" hidden></span>
+    <button class="close-btn" id="close-btn" title="Close (Ctrl+Shift+R)">&times;</button>
+  </div>
+
+  <!-- Body -->
+  <div class="sidebar-body">
+    <!-- Title -->
+    <div class="field-group">
+      <label class="field-label">Title</label>
+      <input type="text" class="field-input" id="field-title" placeholder="Article title">
+    </div>
+
+    <!-- URL (readonly) -->
+    <div class="field-group">
+      <label class="field-label">URL</label>
+      <a class="field-url" id="field-url" href="#" target="_blank" rel="noopener"></a>
+    </div>
+
+    <!-- Source (with autocomplete) -->
+    <div class="field-group source-group">
+      <label class="field-label">Source</label>
+      <input type="text" class="field-input" id="field-source" placeholder="e.g. Quanta Magazine" autocomplete="off">
+      <div class="ac-dropdown" id="source-dropdown" hidden></div>
+    </div>
+
+    <!-- Ratings -->
+    <div class="ratings-block">
+      <div class="rating-row">
+        <span class="rating-name">Quality</span>
+        <div class="rating-pills" id="quality-pills"></div>
+        <span class="rating-desc" id="quality-desc"></span>
+      </div>
+      <div class="rating-row">
+        <span class="rating-name">Interest</span>
+        <div class="rating-pills" id="interest-pills"></div>
+        <span class="rating-desc" id="interest-desc"></span>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="field-group">
+      <label class="field-label">Notes</label>
+      <textarea class="field-textarea" id="field-notes" rows="5" placeholder="Your thoughts, highlights, questions..."></textarea>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <button class="btn btn-skip" id="btn-skip">Skip</button>
+    <div class="footer-right">
+      <button class="btn btn-save" id="btn-save">Save</button>
+      <button class="btn btn-mark-read" id="btn-mark-read">Mark Read</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+</div>
