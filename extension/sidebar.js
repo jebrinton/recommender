@@ -1,8 +1,8 @@
 // sidebar.js — State management, API calls, autocomplete, draft persistence
 // Loaded as an ES module by content.js
 
-const QUALITY_LABELS = ['', 'Poor', 'Weak', 'Fair', 'Good', 'Strong', 'Great', 'Superb'];
-const INTEREST_LABELS = ['', 'Boring', 'Dull', 'Meh', 'Decent', 'Good', 'Hooked', 'Riveting'];
+const QUALITY_LABELS = ['', 'Weak', 'Thin', 'Decent', 'Solid', 'Strong', 'Excellent', 'Exceptional'];
+const SPARK_LABELS   = ['', 'Nothing', 'Slight', 'Mild', 'Interesting', 'Engaging', 'Eye-opening', 'Transformative'];
 const DRAFT_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
 const SAVE_DEBOUNCE = 500;
 
@@ -33,7 +33,6 @@ export function initSidebar(shadowRoot, { extractMetadata, apiBase, onClose }) {
   const statusDot    = $('#status-dot');
   const closeBtn     = $('#close-btn');
   const titleInput   = $('#field-title');
-  const urlLink      = $('#field-url');
   const sourceInput  = $('#field-source');
   const sourceDD     = $('#source-dropdown');
   const qualityPills = $('#quality-pills');
@@ -98,7 +97,7 @@ export function initSidebar(shadowRoot, { extractMetadata, apiBase, onClose }) {
   }
 
   buildPills(qualityPills, qualityDesc, QUALITY_LABELS, 'quality_rating');
-  buildPills(interestPills, interestDesc, INTEREST_LABELS, 'interest_rating');
+  buildPills(interestPills, interestDesc, SPARK_LABELS, 'interest_rating');
 
   // ── Source autocomplete ─────────────────────────────────────────────────────
 
@@ -131,8 +130,37 @@ export function initSidebar(shadowRoot, { extractMetadata, apiBase, onClose }) {
     }
   });
 
+  sourceInput.addEventListener('keydown', (e) => {
+    if ((e.key === 'Enter' || e.key === 'Tab') && !sourceDD.hidden) {
+      const firstOption = sourceDD.querySelector('.ac-option');
+      if (firstOption) {
+        e.preventDefault();
+        sourceInput.value = firstOption.textContent;
+        sourceDD.hidden = true;
+        state.fields.source = firstOption.textContent;
+        state.isDirty = true;
+        debouncedSaveDraft();
+      }
+    }
+  });
+
   sourceInput.addEventListener('blur', () => {
-    setTimeout(() => { sourceDD.hidden = true; }, 150);
+    setTimeout(() => {
+      sourceDD.hidden = true;
+      // Auto-correct source to match existing source (case/whitespace)
+      const val = sourceInput.value.trim();
+      if (val) {
+        const match = state.sources.find(s =>
+          s.toLowerCase().replace(/\s+/g, '') === val.toLowerCase().replace(/\s+/g, '')
+        );
+        if (match && match !== val) {
+          sourceInput.value = match;
+          state.fields.source = match;
+          state.isDirty = true;
+          debouncedSaveDraft();
+        }
+      }
+    }, 150);
   });
 
   // ── Field change listeners ──────────────────────────────────────────────────
@@ -350,15 +378,11 @@ export function initSidebar(shadowRoot, { extractMetadata, apiBase, onClose }) {
 
   function renderFields() {
     titleInput.value = state.fields.title;
-    urlLink.href = state.fields.url;
-    urlLink.textContent = state.fields.url.length > 60
-      ? state.fields.url.slice(0, 60) + '...'
-      : state.fields.url;
     sourceInput.value = state.fields.source;
     notesArea.value = state.fields.notes;
 
     resetRatingDisplay(qualityPills, qualityDesc, QUALITY_LABELS, state.fields.quality_rating);
-    resetRatingDisplay(interestPills, interestDesc, INTEREST_LABELS, state.fields.interest_rating);
+    resetRatingDisplay(interestPills, interestDesc, SPARK_LABELS, state.fields.interest_rating);
   }
 
   // ── Open sidebar (called by content.js) ───────────────────────────────────
