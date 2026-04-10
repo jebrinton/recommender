@@ -443,8 +443,22 @@ export function initSidebar(shadowRoot, { extractMetadata, apiBase, onClose }) {
         const resp = await apiFetch('/api/sources');
         if (resp.ok) {
           state.sources = await resp.json();
+          // Auto-correct extracted source to match existing (case/whitespace)
+          correctSource();
+          renderFields();
         }
       } catch {}
+    }
+  }
+
+  function correctSource() {
+    const val = state.fields.source.trim();
+    if (!val) return;
+    const match = state.sources.find(s =>
+      s.toLowerCase().replace(/\s+/g, '') === val.toLowerCase().replace(/\s+/g, '')
+    );
+    if (match && match !== val) {
+      state.fields.source = match;
     }
   }
 
